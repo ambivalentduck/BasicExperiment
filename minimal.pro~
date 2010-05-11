@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = basicExperiment
+TARGET = minimal
 DEPENDPATH += . 
 INCLUDEPATH += /research/include
 QT += opengl

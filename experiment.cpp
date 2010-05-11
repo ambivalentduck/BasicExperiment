@@ -20,9 +20,18 @@
 const int BlockLength[]={30,       50,      30};
 //const int BlockLength[]={3,       5,      3};
 
-DeepThought::DeepThought(timespec first, DeviceSampler * Sampler, int W, int H, QString output, QString input, int enhance, int task) : min((W>H)?H:W), target(.6*min/3, min/3, min/2)
+DeepThought::DeepThought(QRect QR, QString Task, QString Treatment, QWidget *parent)
 {
 	init_randb();
+	
+	min=(QR.width()>QR.height())?QR.height():QR.width();
+	//Lesser screen dimension, since targets are generated within a set radius, circle diameter
+	
+	target=new targetControl(.9*min/3l, min/3l, min/2l);
+	//Targets are .3 screens apart, requested to be in the middle 2/3 of the screen, and the entire lesser dimension is legal 
+	
+	int len=Task.length();
+	
 	stimOrder=stimorder;
 	if(task<0)
 	{

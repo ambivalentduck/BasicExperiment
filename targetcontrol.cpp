@@ -22,23 +22,23 @@ void TargetControl::reset(int Uses)
 	minUses=Uses;
 }
 
-Point<double> TargetControl::genTarget(Point<double> currentPos, bool directionMatters)
+point TargetControl::genTarget(point currentPos, bool directionMatters)
 {
 	double theta;
-	Point<double> targetPos;
+	point targetPos;
 		
 	if(!directionMatters) //Direction not constrained this trial
 	{	
 		do 
 		{
 			theta=randb(0,360);
-			targetPos=currentPos+Point<double>(cos(theta),sin(theta))*spawnDist;
+			targetPos=currentPos+point(cos(theta),sin(theta))*spawnDist;
 		} 	while(targetPos.mag()>innerRadius);
 		return targetPos;
 	}
 	
 	//If direction predetermined, use it
-	if (nextDirection>=0) {targetPos=currentPos+Point<double>(cos(nextDirection),sin(nextDirection))*spawnDist; nextDirection=-1; return targetPos;} 
+	if (nextDirection>=0) {targetPos=currentPos+point(cos(nextDirection),sin(nextDirection))*spawnDist; nextDirection=-1; return targetPos;} 
 	
 	//Make sure we haven't bottomed out
 	int sum=0;
@@ -52,10 +52,10 @@ Point<double> TargetControl::genTarget(Point<double> currentPos, bool directionM
 	double min=std::numeric_limits<double>::infinity();
 	int index=-1;
 	double mag;
-	Point<double> bestPos;
+	point bestPos;
 	for(int k=0;k<directions;k++)
 	{
-		targetPos=currentPos+Point<double>(cos(direction[k]),sin(direction[k]))*spawnDist;
+		targetPos=currentPos+point(cos(direction[k]),sin(direction[k]))*spawnDist;
 		mag=targetPos.mag();
 		if((mag<min)&&(timesUsed[k]<minUses)&&(mag<innerRadius)) {min=mag; index=k; bestPos=targetPos;}
 	}
@@ -76,7 +76,7 @@ Point<double> TargetControl::genTarget(Point<double> currentPos, bool directionM
 	timesUsed[i]++;
 	nextDirection=direction[i];
 	theta=atan2(currentPos.Y()+spawnDist*sin(direction[i]),currentPos.X()+spawnDist*cos(direction[i]));
-	targetPos=currentPos - Point<double>(cos(theta),sin(theta))*spawnDist;
-	return (targetPos.mag()<=maxRadius)?targetPos:Point<double>(0,0); 
+	targetPos=currentPos - point(cos(theta),sin(theta))*spawnDist;
+	return (targetPos.mag()<=maxRadius)?targetPos:point(0,0); 
 }
 

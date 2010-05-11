@@ -11,8 +11,9 @@ class TargetControl
 {
 public:
 	TargetControl(double spawndist, double innerradius, double Maxradius, int Uses=5, int Directions=3);
+	//Inner radius is effectively *desired* max radius, max radius is actually maximum possible radius
 	void reset(int Uses=-1);
-	Point<double> genTarget(Point<double> currentPos, bool directionMatters=false);
+	point genTarget(point currentPos, bool directionMatters=false);
 	
 private:
 	double * direction;
