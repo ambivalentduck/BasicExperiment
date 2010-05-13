@@ -1,5 +1,5 @@
-#ifndef EXPERIMENT_H
-#define EXPERIMENT_H
+#ifndef DEEPTHOUGHT_H
+#define DEEPTHOUGHT_H
 
 #include <QThread>
 #include <QMutex>
@@ -21,7 +21,7 @@
 class DeepThought : public QThread
 {
 public:
-	DeepThought(int enhance, int task);
+	DeepThought(timespec first, DeviceSampler * Sampler, int W, int H, QString output, QString input, int enhance, int task);
 	void run();
 	void die() {STOP=true; runMutex.lock(); sampler->die(); msleep(10);} 
 	QString getReport() {return QString(report);}
@@ -40,7 +40,7 @@ public:
 	PerTrial::ContinuousInTrial continuous;
 	PerTrial pertrial;
 	
-	enum //Enumerate tasks and enhancements here
+	enum
 	{
 		CURL=0,
 		ROTATION=1,

@@ -9,7 +9,7 @@
 DisplayWidget::DisplayWidget(QRect &qr, QWidget *parent) : QGLWidget(QGLFormat(QGL::DoubleBuffer|QGL::AlphaChannel|QGL::SampleBuffers|QGL::AccumBuffer), parent, 0, Qt::X11BypassWindowManagerHint)
 //Recently switched Qt::FramelessWindowHint to unmanaged, verify working keyboard
 {
-	timerId = startTimer(8); //120 Hz = 8.3 ms, guarantee a paint in each refresh
+	timer.start(8, this); //120 Hz = 8.3 ms, guarantee a paint in each refresh
 	setGeometry(qr);
 	setCursor(QCursor(Qt::BlankCursor)); //Hide the cursor
 	//setCursor(QCursor(Qt::ArrowCursor)); //Show the cursor
@@ -93,6 +93,7 @@ void DisplayWidget::resizeGL(int w, int h)
 
 void DisplayWidget::paintGL()
 {
+	timer.stop();
 	#ifndef REALDATA 
 	delta->makeCurrent();
 	glClearColor(0,0,0,1);
@@ -101,12 +102,15 @@ void DisplayWidget::paintGL()
 	paint.setBrush(Qt::white);
 	paint.setPen(Qt::white);
 	//paint.setFont(QFont("Times",12));
+	dataMutex.lock();
 	paint.drawText(8,TEXTY-2,report);
+	dataMutex.unlock();
 	paint.end();
 	glFlush();
 	delta->updateDynamicTexture(deltaTexture);
 	#endif
 	
+	dataMutex.lock();
 	makeCurrent();
 	
 	glClearColor(backgroundColor.X(), backgroundColor.Y(), backgroundColor.Z(),0);
@@ -136,28 +140,63 @@ void DisplayWidget::paintGL()
 	glDisable(GL_TEXTURE_2D);
 	#endif
 	
+	if(targetRadius>0)
+	{
+		glColor3dv(targetColor); //Draw Target
+		glPushMatrix();
+		glTranslated(target.X(),target.Y(),target.Z());
+		if(targetRadius>1)
+		{
+			glScaled(targetRadius,targetRadius,targetRadius);
+			glCallList(shapeList);
+		}
+		else
+		{
+			glBegin(GL_POINTS);
+				glVertex2d(0,0);
+			glEnd();
+		}
+		glPopMatrix();
+	}
 	
+	if(originRadius>0)
+	{
+		glColor3dv(originColor); //Draw Origin
+		glPushMatrix();
+		glTranslated(origin.X(),origin.Y(),origin.Z());
+		if(originRadius>1)
+		{
+			glScaled(originRadius,originRadius,originRadius);
+			glCallList(shapeList);
+		}
+		else
+		{
+			glBegin(GL_POINTS);
+				glVertex2d(0,0);
+			glEnd();
+		}
+		glPopMatrix();
+	}
 	
-	glColor3dv(targetColor); //Draw Target
-	glPushMatrix();
-	glTranslated(target.X(),target.Y(),target.Z());
-	glScaled(targetRadius,targetRadius,targetRadius);
-	glCallList(shapeList);
-	glPopMatrix();
-	
-	glColor3dv(originColor); //Draw Origin
-	glPushMatrix();
-	glTranslatef(targeto.X(),targeto.Y(),targeto.Z());
-	glBegin(GL_POINTS);
-	glVertex2d(0,0);
-	glEnd();
-	glPopMatrix();
-	
-	glColor3dv(cursorColor); //Draw Cursor
-	glPushMatrix();
-	glTranslatef(cursor.X(),cursor.Y(),cursor.Z());
-	glCallList(shapeList);
-	glPopMatrix();
+	if(cursorRadius>0)
+	{
+		glColor3dv(cursorColor); //Draw Cursor
+		glPushMatrix();
+		glTranslated(cursor.X(),cursor.Y(),cursor.Z());
+		if(cursorRadius>1)
+		{
+			glScaled(originRadius,originRadius,originRadius);
+			glCallList(shapeList);
+		}
+		else
+		{
+			glBegin(GL_POINTS);
+				glVertex2d(0,0);
+			glEnd();
+		}
+		glPopMatrix();
+	}
+	dataMutex.unlock();
 	
 	glswap();
 	glFinish();  //Get precise timing, blocks until swap succeeds.  Swap happens during refresh.
@@ -165,5 +204,7 @@ void DisplayWidget::paintGL()
 	dataMutex.lock();
 	lastRefresh=last;
 	dataMutex.unlock();
+	
+	timer.start(8, this); //120 Hz = 8.3 ms, guarantee a paint in each refresh
 }
 

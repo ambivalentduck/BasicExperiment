@@ -14,22 +14,22 @@
 
 class DeviceSampler : public QThread
 {
-public:
-	enum Devices {MOUSE, HAPI, XPC};
-	DeviceSampler(timespec First, Devices devToUse, int width, int height);
-	struct DeviceData {point p; point v; point f; double t;};
-	void run();    
-	void die() {STOP=true; runMutex.lock();}
-	bool tryAcquire(int timeout, DeviceData &d);
-	
-private:
-	timespec first;
-	bool START, STOP;
-	QMutex runMutex, listMutex;
-	int w2,h2;
-	QSemaphore readable;
-	DeviceData data;
-	DeviceHandler * device;
+  public:
+    enum Device {mouse, falcon} device;
+    DeviceSampler(timespec Start, std::string commandline_device, int width, int height);
+    struct DeviceData {Point<double> p;double t;};
+    void run();    
+    void die() {STOP=true; runMutex.lock();}
+    void begin() {START=true;}
+    bool tryAcquire(int timeout, DeviceData &d);
+    
+ private:
+   timespec s;
+   bool STOP, START;
+   QMutex runMutex, listMutex;
+   int w2,h2;
+   QSemaphore readable;
+   DeviceData data;
 };
 
 #endif
