@@ -1,6 +1,3 @@
-#ifndef DEVICEHANDLER_H
-#define DEVICEHANDLER_H
-
 #include "point.h"
 
 class DeviceHandler
@@ -20,12 +17,10 @@ public:
 	
 	virtual bool setForce(point force, double duration=-1) {return false;}
 	
-	virtual bool rateIsVariable() {return false;}
+	virtual bool rateIsVariable() {return true;}
 	virtual double getMaxRate() {return rate;}
+	virtual bool setRecordingRate(double desired) {return false;}
 	
 	double rate, radius;
 	point center;
 };
-
-#endif
-
