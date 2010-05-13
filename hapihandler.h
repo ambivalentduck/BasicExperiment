@@ -18,9 +18,6 @@ private:
 	const point min, max=point(-.05, -.05, -0.75), max=point(.05, .05, .025);
 };
 
-#endif
-
-
 HAPIHandler::HAPIHandler(point Center, double Radius): DeviceHandler(point Center, double Radius)
 {
 	device=new HAPI::AnyHapticsDevice;
@@ -29,3 +26,8 @@ HAPIHandler::HAPIHandler(point Center, double Radius): DeviceHandler(point Cente
 	device->enableDevice();
 }
 
+
+
+
+
+#endif
