@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = basicExperiment
+TARGET = minimal
 DEPENDPATH += . 
 INCLUDEPATH += /research/include
 QT += opengl
@@ -14,5 +14,5 @@ LIBS += -lm -L/research/include -ljcommon #-lcublas
 #QMAKE_LIBDIR += $$CUDA_DIR/lib
  
 # Input
-HEADERS += devicesampler.h displaywidget.h deepthought.h mousehandler.h crunchthread.h targetcontrol.h
-SOURCES += main.cpp devicesampler.cpp displaywidget.cpp deepthought.cpp crunchthread.cpp targetcontrol.cpp pertrial.cpp
+HEADERS += devicesampler.h displaywidget.h experiment.h mousehandler.h targetcontrol.h devicehandler.h
+SOURCES += main.cpp devicesampler.cpp displaywidget.cpp deepthought.cpp devicehandler.cpp targetcontrol.cpp pertrial.cpp
