@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = separate
+TARGET = minimal
 DEPENDPATH += . 
 INCLUDEPATH += . /home/web/Programming/libjcommon
 QT += opengl
