@@ -10,6 +10,7 @@
 #include "devicesampler.h"
 #include "pertrial.h"
 #include "targetcontrol.h"
+#include "displaywidget.h"
 
 #define RAD 8 //Pixel size of cursors/targets on screen
 #define BLOCK_LENGTH 50

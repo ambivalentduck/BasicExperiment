@@ -4,10 +4,9 @@
 #include <QThread>
 #include <QSemaphore>
 #include <QMutex>
-#include <time.h>
-#include <string.h>
 #include "point.h"
 #include "timestuff.h"
+#include "devicehandler.h"
 
 #define DEVICE_DATA_SIZE 120
 

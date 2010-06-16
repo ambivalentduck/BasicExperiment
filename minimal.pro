@@ -3,16 +3,16 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = minimal
+TARGET = separate
 DEPENDPATH += . 
-INCLUDEPATH += /research/include
+INCLUDEPATH += . /home/web/Programming/libjcommon
 QT += opengl
 CONFIG += debug
-LIBS += -lHAPI -lH3DUtil -lm -L/research/include -ljcommon #-lcublas
+LIBS += -lHAPI -lH3DUtil -lm -L/home/web/Programming/libjcommon -ljcommon #-lcublas
 #CUDA_DIR = $$system(which nvcc | sed 's,/bin/nvcc$,,')
 #INCLUDEPATH += $$CUDA_DIR/include
 #QMAKE_LIBDIR += $$CUDA_DIR/lib
  
 # Input
 HEADERS += devicesampler.h displaywidget.h experiment.h mousehandler.h targetcontrol.h devicehandler.h
-SOURCES += main.cpp devicesampler.cpp displaywidget.cpp deepthought.cpp devicehandler.cpp targetcontrol.cpp pertrial.cpp
+SOURCES += main.cpp devicesampler.cpp displaywidget.cpp experiment.cpp targetcontrol.cpp pertrial.cpp

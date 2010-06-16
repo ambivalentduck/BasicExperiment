@@ -5,12 +5,12 @@
 #include <QStringList>
 #include <fstream>
 
-bool loadSubject(QString &enhance, QString &task, QString path)
+bool loadSubject(int &enhance, int &task, QString path)
 {
 	QString output, input, prior;
 	QFile qfile;
 	QMessageBox::StandardButton reply;
-	int out;
+	int enhance, task, out;
 	bool ok=false;
 	
 	while(!ok)
