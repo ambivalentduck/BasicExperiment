@@ -8,6 +8,10 @@
 #include "timestuff.h"
 #include "devicehandler.h"
 
+//http://xorg.freedesktop.org/wiki/Development/Documentation/PointerAcceleration#Introduction
+//xset m 1 100000 fixes acceleration
+//xset m 2/1 4 appears to be Ubuntu's default
+
 class MouseHandler: public DeviceHandler
 {
 public:

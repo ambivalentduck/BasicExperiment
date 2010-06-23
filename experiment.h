@@ -62,7 +62,7 @@ private:
 	double inTargetCounter;
 	
 signals:
-	void die();
+	void endApp();
 };
 
 #endif

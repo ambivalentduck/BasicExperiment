@@ -69,7 +69,7 @@ void Experiment::run()
 
 	while(!(STOP||widget.keyboardDie()))
 	{
-		if(!sampler->tryAcquire(16,continuous.data)) continue; //Check every 16 ms for a reason to die even if no data.
+		if(!sampler->tryAcquire(continuous.data, 16)) continue; //Check every 16 ms for a reason to die even if no data.
 				
 		//Finite state machine goes here.
 		

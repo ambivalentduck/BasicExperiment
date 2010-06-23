@@ -13,22 +13,24 @@
 class DeviceSampler : public QThread
 {
 public:
-	enum Devices {MOUSE, HAPI, XPC};
-	DeviceSampler(timespec First, Devices devToUse, int width, int height);
+	enum Devices {MOUSE, HAPI, XPC_UDP};
+	DeviceSampler(timespec First, Devices devToUse, point Pixels, point Meters, double recordRate, double dataRate);
 	struct DeviceData {point p; point v; point f; double t;};
 	void run();    
 	void die() {STOP=true; runMutex.lock();}
-	bool tryAcquire(int timeout, DeviceData &d);
+	bool tryAcquire(DeviceData &d, int timeout=0);
 	bool applyForce(point f);
+	void setRecordRate(double hertz);
+	void setDataRate(double hertz);
 	DeviceHandler * device;
 	
 private:
 	timespec zero;
 	bool START, STOP;
 	QMutex runMutex, listMutex;
-	int w2,h2;
+	point pixels, meters;
 	QSemaphore readable;
-	DeviceData data;
+	vector<DeviceData> data;
 };
 
 #endif
