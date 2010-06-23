@@ -17,20 +17,61 @@
 const int BlockLength[]={30,       50,      30};
 //const int BlockLength[]={3,       5,      3};
 
-Experiment::Experiment(QRect QR, QWidget *parent)
+DeepThought::DeepThought(QRect QR, QString Task, QString Treatment, QWidget *parent)
 {
 	init_randb();
-	
-	//Most pressing task is to get a subject#, refresh rate, screen size in meters.
 	
 	min=(QR.width()>QR.height())?QR.height():QR.width();
 	//Lesser screen dimension, since targets are generated within a set radius, circle diameter
 	
 	target=new targetControl(.9*min/3l, min/3l, min/2l);
 	//Targets are .3 screens apart, requested to be in the middle 2/3 of the screen, and the entire lesser dimension is legal 
-		
+	
+	int len=Task.length();
+	
+	stimOrder=stimorder;
+	if(task<0)
+	{
+		stimOrder[1]=3;
+		stimOrder[0]=-1;
+		stimOrder++;
+		randperm(stimOrder);
+	}
+	else
+	{
+		stimOrder[0]=-1;
+		stimOrder[3]=task%10;
+		task-=task%10;
+		task/=10;
+		stimOrder[2]=task%10;
+		task-=task%10;
+		stimOrder[1]=task/10;
+		stimOrder++;
+	}
+	treatOrder=treatorder;
+	if(enhance<0)
+	{
+		treatOrder[1]=3;
+		treatOrder[0]=-1;
+		treatOrder++;
+		randperm(treatOrder);
+	}
+	else
+	{
+		treatOrder[0]=-1;
+		treatOrder[3]=enhance%10;
+		enhance-=enhance%10;
+		enhance/=10;
+		treatOrder[2]=enhance%10;
+		enhance-=enhance%10;
+		treatOrder[1]=enhance/10;
+		treatOrder++;
+	}
+	treat=-1;
+	stim=-1;
 	
 	killswitch=false;
+	hold=false;
 	w=W;
 	h=H;
 	s=first;
@@ -43,6 +84,8 @@ Experiment::Experiment(QRect QR, QWidget *parent)
 	rotation=0.0;
 	intratrial=-1;
 	trials=-1;
+	deltaP=1;
+	deltaV=1;
 	deviceGain=1;
 	lastEndError=0;
 	
@@ -50,8 +93,10 @@ Experiment::Experiment(QRect QR, QWidget *parent)
 	trialFile.setFileName(output+"Trial.dat"); trialFile.open(QIODevice::WriteOnly | QIODevice::Text); trialStream.setDevice(&trialFile);
 	
 	state=-1;
+	char treats[]="W1E2VAv4";
 	
-	report="";
+	char stims[]="WCRLF";
+	sprintf(report, "t%c s%c %i", treats[treat+1],stims[stim+1],0);
 	
 	block=0;
 	intrablock=-1;
@@ -60,23 +105,66 @@ Experiment::Experiment(QRect QR, QWidget *parent)
 	makeTrial();
 }
 
-void Experiment::run()
+void DeepThought::run()
 {
 	runMutex.lock();
 	setPriority(QThread::TimeCriticalPriority);
 	point optimal, errorP, errorV, dP, zero(0,0,0),rot,X(1,0),Y(0,1),Z(0,0,1), cumV(0,0), armpos;
 	double dPmag;
-
-	while(!(STOP||widget.keyboardDie()))
+	char treats[]="W1E2VAv4";
+	char stims[]="WCRLF";
+	while(!STOP)
 	{
-		if(!sampler->tryAcquire(16,continuous.data)) continue; //Check every 16 ms for a reason to die even if no data.
-				
-		//Finite state machine goes here.
+		if(!sampler->tryAcquire(8,continuous.data)) continue;
+		dP=(continuous.data.p-lastpos);
+		dP*=deviceGain/2;
+		if (stim==LIN)
+		{
+			dP=point(dP.X()+dP.Y(),dP.X()-dP.Y()).rotate(rotation,Z)/sqrt(2L);
+		}
+		else if (stim==FNRAO)
+		{
+			dP/=(min/4);
+			phi+=dP;
+			armpos=point(L1*cos(phi.X())+L2*cos(phi.X()+phi.Y()), L1*sin(phi.X())+L2*sin(phi.X()+phi.Y()))+origin;
+			dP=armpos-lastaugpos;
+			jointPos=point(L1*cos(phi.X()),L1*sin(phi.X()))+origin;
+			endPos=armpos;
+		}
+		else if (stim==ROTATION) dP=dP.rotate(rotation,Z);  //Rotation is usually set to 0
+		else if (stim==REFLECT) dP=dP.reflect(REFLECT_ANGLE);
+		
+		if ((continuous.data.t-trialStartTime)>=.250) {deltaV=1; deltaP=1; deviceGain=1;}
+		dPmag=dP.mag();
+		optimal=targetPos-lastaugpos;
+		if((lastaugpos+dP).dist(targetPos)<lastaugpos.dist(targetPos))
+		{ //Distance decreased
+			continuous.directionalError=asin(fabs((optimal.unit()*dP.unit()).mag()))/(2*PI);
+			errorV = dP.linepointvec(zero,optimal);
+		}
+		else
+		{ //Distance increased
+			continuous.directionalError=1.0-acos(fabs(optimal.unit()|dP.unit()))/(2*PI);
+			errorV=dP;
+		}
+		errorP=dP.linepointvec(0,targetPos-pertrial.origin);
+		
+		//Augment Velocity and Position
+		continuous.augmentedPosition=lastaugpos+dP+errorV*(deltaV-1.0)+errorP*(deltaP-1.0);
+		if (stim==CURL) //Device V
+		{
+			cumV*=.5;
+			cumV+=dP*.5;
+		}
+		/*if (stim==CURL) //Screen V
+		{
+		cumV*=.5;
+		cumV+=(continuous.augmentedPosition-lastaugpos)*.5;
+		}*/
 		
 		
 		if(continuous.augmentedPosition.dist(zero)>(min/2)) continuous.augmentedPosition=continuous.augmentedPosition.unit()*min/2; //Prevent off-screen cursor
-	
-		//Most fsm's require some sort of movement detection and time based sunset.  Move this code to a function.
+		
 		if (!hold) 
 		{
 			if (stim==CURL) cursorPos=continuous.augmentedPosition+point(-CURLMAG*cumV.Y(),CURLMAG*cumV.X());
@@ -87,7 +175,11 @@ void Experiment::run()
 		
 		sprintf(report, "t%c s%c %i", treats[treat+1],stims[stim+1],intrablock);
 		
-		contStream << trials TAB continuous.data.t TAB continuous.data.p TAB continuous.drawnPosition TAB hold << std::endl;
+		contStream << trials TAB 
+		continuous.data.t TAB
+		continuous.data.p.X() TAB continuous.data.p.Y() TAB continuous.data.p.Z() TAB
+		continuous.augmentedPosition.X() TAB continuous.augmentedPosition.Y() TAB continuous.augmentedPosition.Z() TAB
+		continuous.directionalError TAB continuous.normalExcursion TAB continuous.normalVelocity TAB cursorPos.X() TAB cursorPos.Y() TAB hold << "\n";
 		contStream.flush();
 		intratrial++;
 		if(killswitch==true) {sprintf(report, "killMe"); break;}
@@ -119,7 +211,7 @@ void Experiment::run()
 	runMutex.unlock();
 }
 
-void Experiment::makeTrial(bool success)
+void DeepThought::makeTrial(bool success)
 {
 	if (trials!=-1) //Finish calculations and write to file
 	{

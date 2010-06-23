@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "experiment.h"
+#include "getExperimentParams.h"
 
 #define EXPERIMENT_PARAMS_PATH "/home/justin/basic experiment/"
 
