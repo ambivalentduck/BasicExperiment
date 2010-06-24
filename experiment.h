@@ -18,11 +18,13 @@
 
 class Experiment: public QThread
 {
+	QOBJECT
+	
 public:
-	Experiment(QRect QR, QString Task, QString Treatment, QWidget *parent=0);
-	void run();
-	void die() {STOP=true; runMutex.lock(); sampler->die(); msleep(10);}
+	Experiment(QRect QR, QWidget *parent=0);
 	~Experiment() {die();}
+	
+	void run();
 	
 	PerTrial::ContinuousInTrial continuous;
 	PerTrial pertrial;
@@ -33,12 +35,14 @@ private:
 	void makeTrial(bool success=true);
 	void noConsecutive(bool * array, int n);
 	
+	void die() {STOP=true; runMutex.lock(); sampler->die();}
+	
 	timespec s;
 	DeviceSampler * sampler;
-	bool STOP, START;
+	bool STOP;
 	QMutex runMutex;
-	char report[40];
-	point cursorPos, targetPos, lastTargetPos, targetColor, lastpos, lastaugpos, origin;
+
+			
 	
 	int w, h;
 	double min;
@@ -56,6 +60,9 @@ private:
 	
 	double lastTime, trialStartTime, holdStartTime;
 	double inTargetCounter;
+	
+signals:
+	void endApp();
 };
 
 #endif
