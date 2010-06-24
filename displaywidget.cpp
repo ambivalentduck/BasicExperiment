@@ -1,15 +1,12 @@
 #include "displaywidget.h"
-#include <QPainter>
 #include <QtGui/qevent.h>
-#include "pi.h"
-
-#define TEXTX 128
-#define TEXTY 12
 
 DisplayWidget::DisplayWidget(QRect &qr, point screenInMeters, QWidget *parent) : QGLWidget(QGLFormat(QGL::DoubleBuffer|QGL::AlphaChannel|QGL::SampleBuffers|QGL::AccumBuffer), parent, 0, Qt::X11BypassWindowManagerHint)
 //Recently switched Qt::FramelessWindowHint to unmanaged, verify working keyboard
 {
 	STOP=false;
+	
+	meterSize=screenInMeters;
 	
 	timer.start(8, this); //120 Hz = 8.3 ms, guarantee a paint in each refresh
 	setGeometry(qr);
@@ -57,7 +54,8 @@ void DisplayWidget::initializeGL()
 
 void DisplayWidget::resizeGL(int w, int h)
 {
-	double min=w>h?h:w;
+	double min=w>h?meterSize.Y():meterSize.X();
+	//The reachable area always includes the largest sphere that will fit in it
 	glViewport(0,0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -88,19 +86,11 @@ void DisplayWidget::paintGL()
 		glColor3dv(it->color);
 		glPushMatrix();
 		glTranslated(it->position.X(),it->position.Y(),it->position.Z());
-		if(it->radius>1)
-		{
-			glScaled(it->radius,it->radius,it->radius);
-			glCallList(sphereList);
-		}
-		else
-		{
-			glBegin(GL_POINTS);
-				glVertex2d(0,0);
-			glEnd();
-		}
+		glScaled(it->radius,it->radius,it->radius);
+		glCallList(sphereList);
 		glPopMatrix();
 	}
+	dataMutex.unlock();
 	
 	glswap();
 	glFinish();  //Get precise timing, blocks until swap succeeds.  Swap happens during refresh.

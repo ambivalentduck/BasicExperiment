@@ -42,9 +42,7 @@ private:
 	bool STOP;
 	QMutex runMutex;
 
-			
 	
-	int w, h;
 	double min;
 	
 	int block, intrablock,intratrial, trials, state;

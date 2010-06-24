@@ -27,15 +27,15 @@ public:
 	};
 
 	DisplayWidget(QRect &qr, point screenInMeters, QWidget *parent=0);
-	~DisplayWidget() {emit die();}
+	~DisplayWidget();
 	void initializeGL();
 	void paintGL();
 	void resizeGL(int w, int h);
 	void timerEvent(QTimerEvent * event) {update();}
 	void keyPressEvent(QKeyEvent * event);
 	timespec getLastRefresh() {return lastRefresh;}
-	void setBGColor(point color) {dataMutex.lock; bgcolor=color; dataMutex.unlock;}
-	void setSpheres(vector<Sphere> s) {dataMutex.lock; spherse=s; dataMutex.unlock;}
+	void setBGColor(point &color) {dataMutex.lock; bgcolor=color; dataMutex.unlock;}
+	void setSpheres(vector<Sphere> &s) {dataMutex.lock; spherse=s; dataMutex.unlock;}
 	bool keyboardDie(return STOP;)
 	
 private:

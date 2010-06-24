@@ -12,6 +12,6 @@ int main(int argc, char **argv)
 	std::cout << "X:" << qr.x() << " Y:" << qr.y() << " W:" << qr.width() << " H:" << qr.height() << std::endl;
 	Experiment experiment(qr, task, treatment, qdw.screen());
 	experiment.start();
-	QObject::connect(experiment.widget, SIGNAL(die()), &a, SLOT(quit()));
+	QObject::connect(&experiment, SIGNAL(endApp()), &a, SLOT(quit()));
 	return a.exec();
 }
