@@ -15,7 +15,7 @@
 class MouseHandler: public DeviceHandler
 {
 public:
-	MouseHandler(point Center, double Radius, QRect qr): DeviceHander(Center, Radius) 
+	MouseHandler(point Center, QRect qr): DeviceHander(Center) 
 	{
 		d = XOpenDisplay(NULL);
 		last = center;
@@ -25,7 +25,7 @@ public:
 		t1=getTime();
 		t2=t1;
 		rate=120;
-		baseT=1l/rate;
+		baseT=1.0/rate;
 		state.appliedforce=point();
 	}
 	

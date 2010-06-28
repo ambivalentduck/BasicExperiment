@@ -53,9 +53,9 @@ public:
 	Point<T> reflect(double theta);
 	T theta() {return atan2(p[0],p[1]);}   
 	
-	T X() {return p[0];}
-	T Y() {return p[1];}
-	T Z() {return p[2];}
+	T& X() {return p[0];}
+	T& Y() {return p[1];}
+	T& Z() {return p[2];}
 	
 	T& operator[](unsigned int n) {return p[n];}
 	//T& operator[] const(unsigned int n) {return p[n];}

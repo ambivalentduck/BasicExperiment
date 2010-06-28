@@ -4,6 +4,7 @@
 #include "point.h"
 #include "timestuff.h"
 #include "forcepulse.h"
+#include <HAPI/AnyHapicsDevice>
 
 class HAPIHandler: public DeviceHandler
 {
@@ -48,7 +49,7 @@ deviceState HAPIHandler::acquire()
 	return current;	
 }
 
-bool HAPIHandler::setForce(point force, double duration)
+bool HAPIHandler::setForce(point force, double start, double duration)
 {
 	sunset=duration+(start-getTime());
 	device->addEffect(new ForcePulse(force,duration));

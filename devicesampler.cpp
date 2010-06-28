@@ -11,14 +11,16 @@ DeviceSampler::DeviceSampler(timespec First, Devices deviceToUse, point Center, 
 	switch(deviceToUse)
 	{
 	case HAPI:
-		device=new HapiHandler(Center, Radius);
+		device=new HapiHandler(Center);
 		break;
-	case HAPI:
+	case XPC_UDP:
+		device=new XpcUdpHandler(Center);
+		break;
 	case MOUSE:
-		device=new MouseHandler(Center, Radius);
+		device=new MouseHandler(Center);
 		break;
 	default:
-		device=new MouseHandler(Center, Radius);
+		device=new MouseHandler(Center);
 		break;
 	}
 	

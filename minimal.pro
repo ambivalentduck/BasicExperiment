@@ -8,11 +8,11 @@ DEPENDPATH += .
 INCLUDEPATH += . /home/web/Programming/libjcommon
 QT += opengl
 CONFIG += debug
-LIBS += -lHAPI -lH3DUtil -lm -L/home/web/Programming/libjcommon -ljcommon #-lcublas
+LIBS += -lHAPI -lH3DUtil -lm #-lcublas
 #CUDA_DIR = $$system(which nvcc | sed 's,/bin/nvcc$,,')
 #INCLUDEPATH += $$CUDA_DIR/include
 #QMAKE_LIBDIR += $$CUDA_DIR/lib
  
 # Input
-HEADERS += devicesampler.h displaywidget.h experiment.h mousehandler.h targetcontrol.h devicehandler.h
-SOURCES += main.cpp devicesampler.cpp displaywidget.cpp experiment.cpp targetcontrol.cpp pertrial.cpp
+HEADERS += devicehandler.h devicesampler.h displaywidget.h experiment.h mousehandler.h hapihandler.h xpcudphandler.h targetcontrol.h 
+SOURCES += main.cpp devicesampler.cpp displaywidget.cpp experiment.cpp targetcontrol.cpp

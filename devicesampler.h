@@ -8,14 +8,15 @@
 #include "timestuff.h"
 #include "devicehandler.h"
 
-#define DEVICE_DATA_SIZE 120
-
 class DeviceSampler : public QThread
 {
 public:
 	enum Devices {MOUSE, HAPI, XPC_UDP};
-	DeviceSampler(timespec First, Devices devToUse, point Pixels, point Meters, double recordRate, double dataRate);
 	struct DeviceData {point p; point v; point f; double t;};
+	
+	DeviceSampler(timespec First, Devices devToUse, point Pixels, point Meters, double recordRate, double dataRate);
+	~DeviceSampler() {delete device;}	
+	
 	void run();    
 	void die() {STOP=true; runMutex.lock();}
 	bool tryAcquire(DeviceData &d, int timeout=0);
@@ -24,6 +25,8 @@ public:
 	void setDataRate(double hertz);
 	DeviceHandler * device;
 	
+	DeviceData scale(DeviceData d, double factor) {d.p*=factor; d.v*=factor; d.f*=factor; return d;}
+	//Note that this could be used in a static call.
 private:
 	timespec zero;
 	bool START, STOP;
