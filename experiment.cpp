@@ -4,6 +4,8 @@
 #include <limits>
 #include <iostream>
 #include "randb.h"
+#include "parameterswidget.h"
+#include "displaywidget.h"
 
 
 #define TAB << "\t" <<
@@ -21,21 +23,24 @@ Experiment::Experiment(QRect QR, QWidget *parent)
 {
 	init_randb();
 	
-	//Most pressing task is to get a subject#, refresh rate, screen size in meters.
+	//Get a subject#, conditions QString, refresh rate, screen size in meters, and device to screen gain.
+	ParatemetersWidget pw(parent);
+	pw.exec();
+	ExperimentParameters params=pw.getParams();
 	
-	min=(QR.width()>QR.height())?QR.height():QR.width();
-	//Lesser screen dimension, since targets are generated within a set radius, circle diameter
+	//Determine lesser screen dimension. Since targets are generated within a set radius, this is circle diameter.
+	min=(params.screenSizeMeters.X()>params.screenSizeMeters.Y())?params.screenSizeMeters.Y():params.screenSizeMeters.X();
 	
-	target=new targetControl(.9*min/3l, min/3l, min/2l);
-	//Targets are .3 screens apart, requested to be in the middle 2/3 of the screen, and the entire lesser dimension is legal 
-		
+	//Targets are .3 screens apart, requested to be in the middle 2/3 of the screen when possible, and the entire lesser dimension is legal to put a target in if need be.
+	target=new targetControl(.3*min, min/3l, min/2l);
+
+	//Establish the common reference starting time.	
+	tZero=getTime();
+	
+	//Set up device sampler.
+	sampler=new DeviceSampler(tzero, DeviceSampler::MOUSE, point(QR.width(),QR.height()), params.screenSizeMeters, params.screenRefreshRate;
 	
 	killswitch=false;
-	w=W;
-	h=H;
-	s=first;
-	sampler=Sampler;
-	srand(time(NULL));
 	cursorPos=point(0,0);
 	targetPos=point(0,0);
 	lastTargetPos=targetPos;

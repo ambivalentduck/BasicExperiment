@@ -14,7 +14,7 @@ public:
 	enum Devices {MOUSE, HAPI, XPC_UDP};
 	struct DeviceData {point p; point v; point f; double t;};
 	
-	DeviceSampler(timespec First, Devices devToUse, point Pixels, point Meters, double recordRate, double dataRate);
+	DeviceSampler(timespec timeZero, Devices devToUse, point screenPixels, point screenMeters, double recordRate, double dataRate);
 	~DeviceSampler() {delete device;}	
 	
 	void run();    
@@ -27,8 +27,9 @@ public:
 	
 	DeviceData scale(DeviceData d, double factor) {d.p*=factor; d.v*=factor; d.f*=factor; return d;}
 	//Note that this could be used in a static call.
+
 private:
-	timespec zero;
+	timespec tZero;
 	bool START, STOP;
 	QMutex runMutex, listMutex;
 	point pixels, meters;

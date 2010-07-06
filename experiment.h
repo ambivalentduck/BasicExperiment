@@ -37,7 +37,7 @@ private:
 	
 	void die() {STOP=true; runMutex.lock(); sampler->die();}
 	
-	timespec s;
+	timespec tZero;
 	DeviceSampler * sampler;
 	bool STOP;
 	QMutex runMutex;
